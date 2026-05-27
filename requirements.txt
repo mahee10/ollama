@@ -1,0 +1,10 @@
+# Core — Ollama.py, OllamaRag.py, OllamaTool.py, api.py
+ollama
+
+# Local API — api.py (FastAPI + uvicorn; pydantic is pulled in by fastapi)
+fastapi
+uvicorn[standard]
+
+# Travel agents — travelAgent_Chaining_Ollama.py, travelAgent_Orchestrator_IBM_Granite.py
+openai
+openai-agents
