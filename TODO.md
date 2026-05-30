@@ -41,7 +41,7 @@ This file sets up a **basic HTTP API** for your Ollama scripts, then exposes it 
 
    Notes:
    - Keep the model consistent with your scripts (`llama3.2:1b`).
-   - Run from `Day1_Session` so `CBUS2025.txt` can be read by relative path.
+   - Run from the project root so `CBUS2025.txt` can be read by relative path.
 
 4. **Run the server**:
 

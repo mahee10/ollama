@@ -1,6 +1,6 @@
-# Day 1 Session — Agentic AI with Ollama
+# Agentic AI with Ollama
 
-Hands-on examples for **Day 1** of the Agentic AI course: local LLMs via [Ollama](https://ollama.com), simple prompting, RAG-style context, tool calling, and multi-agent travel assistants.
+Hands-on examples using local LLMs via [Ollama](https://ollama.com): simple prompting, RAG-style context, tool calling, and multi-agent travel assistants.
 
 ## What you’ll learn (in plain English)
 
@@ -22,24 +22,32 @@ Hands-on examples for **Day 1** of the Agentic AI course: local LLMs via [Ollama
 
 ## Setup
 
-From this folder (`Day1_Session`):
+From this folder:
 
 ```bash
-pip install ollama
+python -m venv .venv
+# activate venv (PowerShell): .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-For the travel agent scripts (`travelAgent_*.py`), also install the OpenAI Agents SDK and client:
+Ollama exposes an OpenAI-compatible API at `http://localhost:11434/v1`, which the travel agents use as the model backend.
+
+### Local HTTP API (`api.py`)
+
+Run the FastAPI server on port **8000**:
 
 ```bash
-pip install openai openai-agents
+uvicorn api:app --reload --port 8000
 ```
 
-Ollama exposes an OpenAI-compatible API at `http://localhost:11434/v1`, which those agents use as the model backend.
+**Testing:** see **[HOW_TO_TEST.md](HOW_TO_TEST.md)** — Python scripts (category 1) and HTTP API (category 2).
 
 ## Project layout
 
 | File | Description |
 |------|-------------|
+| `api.py` | FastAPI server: `POST /chat`, `/rag`, `/weather` (see [HOW_TO_TEST.md](HOW_TO_TEST.md)). |
+| `HOW_TO_TEST.md` | Testing guide: Python scripts + Ollama, and local HTTP API. |
 | `Ollama.py` | Basic chat with a system prompt (travel assistant). |
 | `OllamaRag.py` | Same assistant, but the system prompt includes the full `CBUS2025.txt` guide. |
 | `OllamaTool.py` | Tool calling: model invokes `get_current_weather` (wttr.in) and answers in plain English. |
@@ -49,7 +57,7 @@ Ollama exposes an OpenAI-compatible API at `http://localhost:11434/v1`, which th
 
 ## Usage
 
-Run each script from `Day1_Session` (so relative paths like `CBUS2025.txt` resolve correctly).
+Run each script from this project folder (so relative paths like `CBUS2025.txt` resolve correctly).
 
 ### 1. Basic chat — `Ollama.py`
 
@@ -127,7 +135,7 @@ Change the model after pulling it locally, e.g. `ollama pull llama3.2` and updat
 
 - **Connection refused to localhost:11434** — Start Ollama and confirm `ollama list` shows your model.
 - **Model not found** — Run `ollama pull llama3.2:1b` (or the model name in the script).
-- **`CBUS2025.txt` not found** — Run `OllamaRag.py` from `Day1_Session`, not a parent folder.
+- **`CBUS2025.txt` not found** — Run `OllamaRag.py` from this project folder, not a parent folder.
 - **Weather tool fails** — Check internet access; wttr.in must be reachable from your machine.
 - **Travel agent import errors** — Install `openai` and `openai-agents`; use Python 3.10+.
 

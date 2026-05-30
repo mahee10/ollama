@@ -24,6 +24,34 @@ CBUS_GUIDE_PATH = Path(__file__).parent / "CBUS2025.txt"
 app = FastAPI(title="Ollama Local API")
 
 
+@app.get("/")
+def root():
+    return {
+        "name": app.title,
+        "docs": "/docs",
+        "endpoints": [
+            {
+                "method": "POST",
+                "path": "/chat",
+                "description": "Basic travel chat (Ollama.py style)",
+                "body": {"message": "your question"},
+            },
+            {
+                "method": "POST",
+                "path": "/rag",
+                "description": "Chat grounded in CBUS2025.txt",
+                "body": {"message": "your question"},
+            },
+            {
+                "method": "POST",
+                "path": "/weather",
+                "description": "Weather via tool calling (wttr.in)",
+                "body": {"city": "Columbus"},
+            },
+        ],
+    }
+
+
 class ChatRequest(BaseModel):
     message: str
 
@@ -122,15 +150,22 @@ def weather(req: WeatherRequest):
         for tool_call in response["message"]["tool_calls"]:
             function_name = tool_call["function"]["name"]
             function_args = tool_call["function"]["arguments"]
-            if function_to_call := available_functions.get(function_name):
+            if isinstance(function_args, str):
+                function_args = json.loads(function_args)
+            if function_name == "get_current_weather":
+                city = function_args.get("city") or req.city
+                tool_data = get_current_weather(city)
+            elif function_to_call := available_functions.get(function_name):
                 tool_data = function_to_call(**function_args)
-                messages.append(
-                    {
-                        "role": "tool",
-                        "name": function_name,
-                        "content": json.dumps(tool_data),
-                    }
-                )
+            else:
+                continue
+            messages.append(
+                {
+                    "role": "tool",
+                    "name": function_name,
+                    "content": json.dumps(tool_data),
+                }
+            )
         final_response = ollama.chat(model=MODEL, messages=messages)
         return {
             "content": final_response["message"]["content"],
